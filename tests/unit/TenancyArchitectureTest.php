@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\TenantModel;
 use App\Models\TenantScopedModel;
+use App\Models\UserLoginLookup;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -17,11 +18,13 @@ final class TenancyArchitectureTest extends TestCase
     /** Models allowed to bypass the tenant scope, each needing a stated reason. */
     private const UNSCOPED_MODELS = [
         TenantModel::class, // The tenants table is the root of isolation.
+        UserLoginLookup::class, // At sign-in the tenant isn't known yet; it comes from this lookup.
     ];
 
     /** Files allowed to reach the database without a model. */
     private const DIRECT_DB_ALLOWED = [
         'Controllers/Health.php', // Runs SELECT 1 and reads no data.
+        'Libraries/Transaction.php', // Opens transactions and reads no data.
     ];
 
     private const DIRECT_DB_PATTERN = '/Database::connect\(|db_connect\(|->query\(|->simpleQuery\(|->table\(/';
