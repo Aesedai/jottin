@@ -37,5 +37,7 @@
         <const name="CONFIGPATH" value="./app/Config/"/>
         <!-- Directory containing the front controller (index.php) -->
         <const name="PUBLICPATH" value="./public/"/>
+        <!-- A fixed, test-only key. Real keys come from the environment. -->
+        <env name="encryption.key" value="hex2bin:00000000000000000000000000000000ffffffffffffffffffffffffffffffff"/>
     </php>
 </phpunit>

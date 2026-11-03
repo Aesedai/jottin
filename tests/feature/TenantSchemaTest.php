@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\DatabaseTestTrait;
+use Tests\Support\CleanDatabase;
 
 /**
  * Checks the migrated schema itself, so a new table can't ship without tenant_id.
@@ -11,13 +12,13 @@ use CodeIgniter\Test\DatabaseTestTrait;
 final class TenantSchemaTest extends CIUnitTestCase
 {
     use DatabaseTestTrait;
+    use CleanDatabase;
 
     /** Tables that are deliberately not tenant-owned. */
     private const GLOBAL_TABLES = ['ci_sessions', 'migrations', 'tenants'];
 
-    protected $migrate   = true;
-    protected $refresh   = true;
-    protected $namespace = 'App';
+    protected $migrate = false;
+    protected $refresh = false;
 
     public function testForeignKeysBetweenTenantTablesIncludeTenantId(): void
     {

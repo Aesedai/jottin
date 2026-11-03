@@ -6,6 +6,8 @@ use App\Libraries\Jotts\CollectionService;
 use App\Libraries\Jotts\FeedPage;
 use App\Libraries\Jotts\InvalidCollectionName;
 use App\Models\CollectionModel;
+use App\Models\CollectionWebhookModel;
+use App\Models\DeliveryAttemptModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -38,7 +40,7 @@ class Collections extends BaseController
 
     public function settings(string $publicId): string
     {
-        return view('collections/settings', ['collection' => $this->collectionOr404($publicId)]);
+        return view('collections/settings', $this->settingsData($this->collectionOr404($publicId)));
     }
 
     public function rename(string $publicId): RedirectResponse|ResponseInterface
@@ -48,13 +50,27 @@ class Collections extends BaseController
         try {
             (new CollectionService())->rename($collection, (string) $this->request->getPost('name'));
         } catch (InvalidCollectionName $e) {
-            return $this->response->setStatusCode(422)->setBody(view('collections/settings', [
-                'collection' => $collection,
-                'nameError'  => $e->getMessage(),
-            ]));
+            return $this->response->setStatusCode(422)->setBody(view(
+                'collections/settings',
+                $this->settingsData($collection) + ['nameError' => $e->getMessage()]
+            ));
         }
 
         return redirect()->to("/collections/{$publicId}/settings")->with('notice', 'Collection renamed.');
+    }
+
+    /**
+     * @param array<string, mixed> $collection
+     *
+     * @return array<string, mixed>
+     */
+    private function settingsData(array $collection): array
+    {
+        return [
+            'collection' => $collection,
+            'webhook'    => (new CollectionWebhookModel())->forCollection((int) $collection['id']),
+            'history'    => (new DeliveryAttemptModel())->historyFor((int) $collection['id']),
+        ];
     }
 
     /**

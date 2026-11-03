@@ -32,6 +32,7 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
+        "process-timeout": 0,
         "allow-plugins": {
             "phpstan/extension-installer": true
         }

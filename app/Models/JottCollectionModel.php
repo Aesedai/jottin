@@ -9,6 +9,11 @@ class JottCollectionModel extends TenantScopedModel
     protected $useTimestamps = true;
     protected $returnType    = 'array';
 
+    public function isMember(int $jottId, int $collectionId): bool
+    {
+        return $this->where('jott_id', $jottId)->where('collection_id', $collectionId)->countAllResults() > 0;
+    }
+
     /**
      * @param list<int> $jottIds
      *

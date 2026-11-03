@@ -3,6 +3,7 @@
 namespace App\Libraries\Jotts;
 
 use App\Libraries\Audit\AuditLogger;
+use App\Libraries\Delivery\DeliveryService;
 use App\Libraries\Transaction;
 use App\Models\CollectionModel;
 use App\Models\JottModel;
@@ -21,6 +22,7 @@ final class JottService
         private readonly MembershipService $memberships = new MembershipService(),
         private readonly HashtagParser $parser = new HashtagParser(),
         private readonly AuditLogger $audit = new AuditLogger(),
+        private readonly DeliveryService $deliveries = new DeliveryService(),
     ) {
     }
 
@@ -43,6 +45,13 @@ final class JottService
             foreach ($manualCollections as $collection) {
                 $this->memberships->addManual($id, (int) $collection['id']);
             }
+
+            // Only a brand-new jott triggers Automatic delivery. Later edits and manual
+            // assignments don't, as the spec requires.
+            $this->deliveries->enqueueForNewJott($id, $publicId, array_merge(
+                $change['entered'],
+                array_map('intval', array_column($manualCollections, 'id'))
+            ));
 
             $this->audit->record('jott.created', 'jott', $publicId, [
                 'source'      => $source,

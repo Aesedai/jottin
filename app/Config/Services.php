@@ -4,6 +4,9 @@ namespace Config;
 
 use App\Libraries\Api\ApiClient;
 use App\Libraries\Auth\CurrentUser;
+use App\Libraries\Delivery\CurlTransport;
+use App\Libraries\Delivery\DnsResolver;
+use App\Libraries\Delivery\WebhookTransport;
 use App\Libraries\Tenancy\TenantContext;
 use CodeIgniter\Config\BaseService;
 
@@ -22,6 +25,24 @@ use CodeIgniter\Config\BaseService;
  */
 class Services extends BaseService
 {
+    public static function webhookTransport(bool $getShared = true): WebhookTransport
+    {
+        if ($getShared) {
+            return static::getSharedInstance('webhookTransport');
+        }
+
+        return new CurlTransport();
+    }
+
+    public static function dnsResolver(bool $getShared = true): DnsResolver
+    {
+        if ($getShared) {
+            return static::getSharedInstance('dnsResolver');
+        }
+
+        return new DnsResolver();
+    }
+
     public static function apiClient(bool $getShared = true): ApiClient
     {
         if ($getShared) {
