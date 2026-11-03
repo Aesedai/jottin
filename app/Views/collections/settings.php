@@ -15,4 +15,11 @@
         <button type="submit" class="primary">Save name</button>
     </form>
 </section>
+<?= view('partials/webhook_settings', [
+    'collection'   => $collection,
+    'webhook'      => $webhook,
+    'history'      => $history,
+    'newSecret'    => $newSecret ?? null,
+    'webhookError' => $webhookError ?? null,
+]) ?>
 <?= $this->endSection() ?>

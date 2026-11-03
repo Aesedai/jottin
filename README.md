@@ -7,7 +7,7 @@ Multi-tenant note capture: write a short note ("jott"), hashtags file it into co
 Requires Docker with Compose. PHP and Composer run inside the container.
 
 ```bash
-cp .env.example .env          # then set real values for both passwords
+cp .env.example .env          # then set real values, as the file describes
 docker compose up -d --build
 docker compose exec -u www-data app composer install
 docker compose exec -u www-data app php spark migrate --all

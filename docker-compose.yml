@@ -21,6 +21,39 @@ services:
       database_tests_database: jottin_test
       database_tests_username: jottin
       database_tests_password: ${DB_PASSWORD}
+      encryption_key: ${ENCRYPTION_KEY:?set ENCRYPTION_KEY in .env}
+      # Lets the demo receiver below be a webhook target. Only honored in development.
+      JOTTIN_ALLOW_PRIVATE_WEBHOOKS: "true"
+
+  # Sends queued automatic deliveries. It exits periodically, and restarting gives it
+  # a fresh process and database connection.
+  worker:
+    build:
+      context: .
+      target: dev
+    command: php spark deliveries:run --loop
+    user: www-data
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/var/www/html
+    environment:
+      CI_ENVIRONMENT: development
+      database_default_hostname: db
+      database_default_database: jottin
+      database_default_username: jottin
+      database_default_password: ${DB_PASSWORD}
+      encryption_key: ${ENCRYPTION_KEY}
+      JOTTIN_ALLOW_PRIVATE_WEBHOOKS: "true"
+
+  # A controllable webhook target for demos: /ok, /fail, /slow and /redirect.
+  receiver:
+    image: php:8.3-cli
+    command: php -S 0.0.0.0:80 /receiver/index.php
+    volumes:
+      - ./docker/receiver:/receiver:ro
 
   db:
     image: mysql:8.0

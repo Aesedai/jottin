@@ -3,6 +3,8 @@
 namespace App\Libraries\Jotts;
 
 use App\Models\CollectionModel;
+use App\Models\CollectionWebhookModel;
+use App\Models\DeliveryStateModel;
 use App\Models\JottCollectionModel;
 use App\Models\JottModel;
 
@@ -22,11 +24,16 @@ final class FeedPage
         $jottModel = new JottModel();
         $jotts     = $collection === null ? $jottModel->feed() : $jottModel->inCollection((int) $collection['id']);
 
+        $ids          = array_map('intval', array_column($jotts, 'id'));
+        $collectionId = (int) ($collection['id'] ?? 0);
+
         return [
             'jotts'       => $jotts,
             'collection'  => $collection,
+            'webhook'     => $collection === null ? null : (new CollectionWebhookModel())->forCollection($collectionId),
+            'states'      => $collection === null ? [] : (new DeliveryStateModel())->forCollection($collectionId, $ids),
             'collections' => (new CollectionModel())->withCounts(),
-            'memberships' => (new JottCollectionModel())->forJotts(array_map('intval', array_column($jotts, 'id'))),
+            'memberships' => (new JottCollectionModel())->forJotts($ids),
         ];
     }
 }

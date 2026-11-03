@@ -27,6 +27,9 @@ $routes->post('collections', 'Collections::create', ['filter' => 'auth']);
 $routes->get('collections/(:alphanum)', 'Collections::show/$1', ['filter' => 'auth']);
 $routes->get('collections/(:alphanum)/settings', 'Collections::settings/$1', ['filter' => 'auth']);
 $routes->post('collections/(:alphanum)/settings', 'Collections::rename/$1', ['filter' => 'auth']);
+$routes->post('collections/(:alphanum)/webhook', 'Deliveries::configure/$1', ['filter' => ['auth', 'role:owner']]);
+$routes->post('collections/(:alphanum)/send', 'Deliveries::send/$1', ['filter' => 'auth']);
+$routes->post('collections/(:alphanum)/jotts/(:alphanum)/rearm', 'Deliveries::rearm/$1/$2', ['filter' => 'auth']);
 
 $routes->get('account/password', 'Account::passwordForm', ['filter' => 'auth']);
 $routes->post('account/password', 'Account::changePassword', ['filter' => 'auth']);
