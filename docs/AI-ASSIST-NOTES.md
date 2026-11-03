@@ -21,6 +21,8 @@ A running record of how AI was used to build Jottin, where a human changed its d
 - **Silently ignored argument:** it passed data to `extend()`, which takes only a layout name, so every page lost its title and the landing page its styling. All tests passed; looking at a screenshot caught it.
 - **Default collation trap, caught in design:** MySQL's default collation would have treated `#cafe` and `#café` as one tag, so `tag_key` uses a binary collation, with a test that fails without it.
 - **Hidden labels widened the page:** screen-reader text escaped the scrolling collection list and made the feed 720px wide on a 320px screen. All tests passed; measuring the rendered page caught it.
+- **Demo flag too permissive:** a switch for the local receiver was only excluded from production, so it also disabled SSRF protection during local test runs. CI didn't set the variable and wouldn't have caught it. It now applies only in development, and a test run with the flag set fails if that regresses.
+- **Slow test suite:** rebuilding the schema for every test passed Composer's 5-minute limit, which would have broken CI. The schema now builds once per run.
 - **Overridden Apache setting:** `ServerTokens Prod` from PR 1 was overridden by Debian's own config and leaked the Apache version. Inspecting real response headers caught it.
 
 ## Why the tests are trustworthy
