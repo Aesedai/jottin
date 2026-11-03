@@ -10,3 +10,4 @@ writable/cache/*
 writable/logs/*
 writable/session/*
 writable/debugbar/*
+docker-compose.override.yml
