@@ -10,3 +10,6 @@ parameters:
         - vendor/codeigniter4/framework/system/Test/bootstrap.php
     scanDirectories:
         - vendor/codeigniter4/framework/system
+    ignoreErrors:
+        # The framework's builder and connection generics add noise without adding safety here.
+        - identifier: missingType.generics
