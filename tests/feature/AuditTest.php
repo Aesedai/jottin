@@ -9,16 +9,17 @@ use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\DatabaseTestTrait;
 use CodeIgniter\Test\FeatureTestTrait;
 use Tests\Support\AuthTestHelpers;
+use Tests\Support\CleanDatabase;
 
 final class AuditTest extends CIUnitTestCase
 {
     use AuthTestHelpers;
     use DatabaseTestTrait;
+    use CleanDatabase;
     use FeatureTestTrait;
 
-    protected $migrate   = true;
-    protected $refresh   = true;
-    protected $namespace = 'App';
+    protected $migrate = false;
+    protected $refresh = false;
 
     /** @param array{tenant_id: int, user_id: int} $account */
     private function createJott(array $account, string $text): string

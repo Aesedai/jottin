@@ -9,16 +9,17 @@ use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\DatabaseTestTrait;
 use CodeIgniter\Test\FeatureTestTrait;
 use Tests\Support\AuthTestHelpers;
+use Tests\Support\CleanDatabase;
 
 final class MembersTest extends CIUnitTestCase
 {
     use AuthTestHelpers;
     use DatabaseTestTrait;
+    use CleanDatabase;
     use FeatureTestTrait;
 
-    protected $migrate   = true;
-    protected $refresh   = true;
-    protected $namespace = 'App';
+    protected $migrate = false;
+    protected $refresh = false;
 
     protected function setUp(): void
     {
