@@ -19,6 +19,12 @@ $routes->post('jotts/(:alphanum)', 'Jotts::update/$1', ['filter' => 'auth']);
 $routes->get('jotts/(:alphanum)/delete', 'Jotts::confirmDelete/$1', ['filter' => 'auth']);
 $routes->post('jotts/(:alphanum)/delete', 'Jotts::delete/$1', ['filter' => 'auth']);
 
+$routes->get('collections', 'Collections::index', ['filter' => 'auth']);
+$routes->post('collections', 'Collections::create', ['filter' => 'auth']);
+$routes->get('collections/(:alphanum)', 'Collections::show/$1', ['filter' => 'auth']);
+$routes->get('collections/(:alphanum)/settings', 'Collections::settings/$1', ['filter' => 'auth']);
+$routes->post('collections/(:alphanum)/settings', 'Collections::rename/$1', ['filter' => 'auth']);
+
 $routes->get('account/password', 'Account::passwordForm', ['filter' => 'auth']);
 $routes->post('account/password', 'Account::changePassword', ['filter' => 'auth']);
 
