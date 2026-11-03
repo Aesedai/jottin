@@ -5,8 +5,9 @@ RUN apt-get update \
  && docker-php-ext-install intl mysqli opcache \
  && rm -rf /var/lib/apt/lists/*
 RUN a2enmod rewrite headers
-COPY docker/apache/jottin.conf /etc/apache2/conf-available/jottin.conf
-RUN a2enconf jottin \
+# zz- so this loads after Debian's security.conf, which would otherwise override it.
+COPY docker/apache/jottin.conf /etc/apache2/conf-available/zz-jottin.conf
+RUN a2enconf zz-jottin \
  && sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
  && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
  && printf 'expose_php=Off\n' > "$PHP_INI_DIR/conf.d/zz-jottin.ini"
