@@ -4,13 +4,15 @@ A running record of how AI was used to build Jottin, where a human changed its d
 
 ## Where AI helped
 - Trimmed the full product spec into a one-day scope and PR plan.
-- Scaffolded the CodeIgniter 4 project, Docker setup and CI pipeline.
+- Wrote most of the code, tests and documentation across all the PRs, including the CodeIgniter 4 project, Docker setup and CI pipeline.
 
 - Read the framework's query builder source and found that a base-model `where()` would leak through `orWhere()` and `countAll()`, which led to scoping at SQL compile time.
 
 ## Where a human corrected or redirected it
 - **Hosting:** the AI proposed a dedicated AWS VM. Jordan questioned whether that was necessary, and it turned out to be a convenience rather than a PHP requirement.
 - **Tenancy:** the AI recommended keeping per-tenant subdomains. Jordan checked them against the product spec, found they weren't a requirement, and dropped them. Tenants now resolve from the session or API credential.
+- **Inbound API:** Jordan questioned whether the API was more complex than a webhook needed, and pointed to the Webhooker tool. Reading its source showed the endpoint already fit, and led to adding the `message` reply field.
+- **Git target:** Jordan confirmed the work goes to GitHub, not the local server.
 
 ## Mistakes the AI made, and what caught them
 - **Passing check that never ran:** a pipeline hid a crashed `composer check`. It now checks real exit codes.
@@ -29,4 +31,23 @@ A running record of how AI was used to build Jottin, where a human changed its d
 Tests written alongside the code can pass without proving much. So the isolation and access protections were deliberately broken one at a time, confirming the suite fails each time. Behavior the test environment can't exercise, such as real sign-out and session storage, was checked over HTTP against the running app.
 
 ## Governance I'd apply with sensitive or health data
-- To be completed as the build progresses.
+
+**What the AI can see**
+- No real client data in prompts, ever: not in logs, tickets, screenshots or database dumps. Use synthetic data, as this project does.
+- Only approved tools, under a contract that covers data handling, retention and training use, and a BAA where health data could be involved.
+- Secrets stay out of its reach where possible. It works against development credentials, never production ones.
+
+**What the AI can do**
+- It works in development environments only, with no direct production access.
+- Merging stays under human control for anything touching tenancy, permissions, authentication or data handling. In this build it merged PRs 4–7 after CI passed, on a personal project with synthetic data. On a team with client data, I'd require human approval before every merge.
+- Destructive actions need explicit approval. It asked before overwriting Git history here, and that approval only covered that one action.
+
+**How its work gets checked**
+- Treat it like a fast new contributor: same review, CI and tests as anyone.
+- Verify behavior, not just test results. The checks that caught the most here were screenshots, real HTTP requests and real response headers.
+- Test the tests by deliberately breaking protections, because tests written alongside the code can pass without proving much.
+- Be especially skeptical of framework details recalled from memory, and check the source.
+- Keep the attribution visible in commits, so a reviewer knows what they're looking at.
+
+**Accountability**
+- The person who merges owns the result, whoever or whatever wrote it. If I can't explain a change, it doesn't ship.

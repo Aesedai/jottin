@@ -29,7 +29,8 @@ That's the common approach, and it has real holes that the tests here cover:
 ## Defense in depth
 
 - **Composite foreign keys:** child tables reference `(tenant_id, id)`, so MySQL itself rejects a link between rows in different tenants, even from buggy code.
-- **Architecture tests in CI** fail if a model doesn't extend the base class, code reaches the database directly, or a migrated table lacks a required `tenant_id`. Exceptions must be allowlisted in the test with a reason.
+- **Architecture tests in CI** fail if a model doesn't extend the base class, code reaches the database directly, a migrated table lacks a required `tenant_id`, or a foreign key between tenant tables omits it. Exceptions must be allowlisted in the test with a reason.
+- **The worker stays scoped.** Its queue reports only which tenant and attempt is next, and the work runs through `runAs()` and scoped models.
 
 ## Known limits
 
