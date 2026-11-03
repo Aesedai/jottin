@@ -13,6 +13,28 @@ class CollectionModel extends TenantScopedModel
     protected $useTimestamps = true;
     protected $returnType    = 'array';
 
+    /** @return array<string, mixed>|null */
+    public function findByPublicId(string $publicId): ?array
+    {
+        return $this->where('public_id', $publicId)->first();
+    }
+
+    /** @return list<array<string, mixed>> Each with jott_count, including empty collections. */
+    public function withCounts(): array
+    {
+        return $this->select('collections.*')
+            ->select('COUNT(jott_collections.id) AS jott_count', false)
+            ->join(
+                'jott_collections',
+                'jott_collections.tenant_id = collections.tenant_id'
+                . ' AND jott_collections.collection_id = collections.id',
+                'left'
+            )
+            ->groupBy('collections.id')
+            ->orderBy('collections.name', 'ASC')
+            ->findAll();
+    }
+
     /**
      * Finds this tenant's collection for a tag, creating it the first time.
      *

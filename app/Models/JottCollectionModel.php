@@ -21,7 +21,7 @@ class JottCollectionModel extends TenantScopedModel
         }
 
         $rows = $this->select('jott_collections.jott_id, jott_collections.is_automatic, jott_collections.is_manual')
-            ->select('collections.public_id, collections.name')
+            ->select('collections.public_id, collections.name, collections.tag_key')
             // Joined on the composite key, so both rows must belong to the same tenant.
             ->join(
                 'collections',

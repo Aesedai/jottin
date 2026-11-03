@@ -80,6 +80,35 @@ final class JottService
         });
     }
 
+    /**
+     * @param array<string, mixed> $jott       A row already loaded through the tenant scope.
+     * @param array<string, mixed> $collection A row already loaded through the tenant scope.
+     */
+    public function addToCollection(array $jott, array $collection): void
+    {
+        Transaction::run(function () use ($jott, $collection): void {
+            $this->memberships->addManual((int) $jott['id'], (int) $collection['id']);
+            $this->audit->record('jott.collection_added', 'jott', $jott['public_id'], [
+                'collection' => $collection['public_id'],
+            ]);
+        });
+    }
+
+    /**
+     * @param array<string, mixed> $jott       A row already loaded through the tenant scope.
+     * @param array<string, mixed> $collection A row already loaded through the tenant scope.
+     */
+    public function removeFromCollection(array $jott, array $collection): void
+    {
+        Transaction::run(function () use ($jott, $collection): void {
+            if ($this->memberships->removeManual((int) $jott['id'], (int) $collection['id'])) {
+                $this->audit->record('jott.collection_removed', 'jott', $jott['public_id'], [
+                    'collection' => $collection['public_id'],
+                ]);
+            }
+        });
+    }
+
     private function validated(string $text): string
     {
         $text = trim($text);
