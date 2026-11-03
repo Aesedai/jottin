@@ -1,0 +1,43 @@
+services:
+  app:
+    build:
+      context: .
+      target: dev
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      CI_ENVIRONMENT: development
+      COMPOSER_HOME: /tmp/composer
+      database_default_hostname: db
+      database_default_database: jottin
+      database_default_username: jottin
+      database_default_password: ${DB_PASSWORD:?copy .env.example to .env and set DB_PASSWORD}
+      database_tests_hostname: db
+      database_tests_database: jottin_test
+      database_tests_username: jottin
+      database_tests_password: ${DB_PASSWORD}
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: jottin
+      MYSQL_USER: jottin
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?set DB_ROOT_PASSWORD in .env}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  db-data:
