@@ -19,6 +19,28 @@ final class TenantSchemaTest extends CIUnitTestCase
     protected $refresh   = true;
     protected $namespace = 'App';
 
+    public function testForeignKeysBetweenTenantTablesIncludeTenantId(): void
+    {
+        $columns = $this->db->query(
+            "SELECT TABLE_NAME AS tbl, CONSTRAINT_NAME AS name, COLUMN_NAME AS col, REFERENCED_TABLE_NAME AS target
+             FROM information_schema.KEY_COLUMN_USAGE
+             WHERE TABLE_SCHEMA = ? AND REFERENCED_TABLE_NAME IS NOT NULL AND REFERENCED_TABLE_NAME <> 'tenants'",
+            [$this->db->getDatabase()]
+        )->getResultArray();
+
+        $this->assertNotSame([], $columns);
+
+        $byConstraint = [];
+
+        foreach ($columns as $column) {
+            $byConstraint["{$column['tbl']}.{$column['name']}"][] = $column['col'];
+        }
+
+        foreach ($byConstraint as $constraint => $names) {
+            $this->assertContains('tenant_id', $names, "{$constraint} must be a composite key including tenant_id.");
+        }
+    }
+
     public function testEveryOtherTableHasARequiredTenantId(): void
     {
         $tables = $this->db->query(
