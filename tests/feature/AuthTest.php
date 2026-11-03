@@ -239,7 +239,7 @@ final class AuthTest extends CIUnitTestCase
         $account = $this->createWorkspace('ada@example.com');
         $this->db->query('UPDATE users SET name = ? WHERE id = ?', ['<script>alert(1)</script>', $account['user_id']]);
 
-        $result = $this->actingAs($account)->get('dashboard');
+        $result = $this->actingAs($account)->get('members');
 
         $result->assertDontSee('<script>alert(1)</script>');
         $result->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;');
