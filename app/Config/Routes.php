@@ -22,6 +22,8 @@ $routes->post('jotts/(:alphanum)/delete', 'Jotts::delete/$1', ['filter' => 'auth
 $routes->get('account/password', 'Account::passwordForm', ['filter' => 'auth']);
 $routes->post('account/password', 'Account::changePassword', ['filter' => 'auth']);
 
+$routes->get('audit', 'Audit::index', ['filter' => ['auth', 'role:owner']]);
+
 $routes->get('members', 'Members::index', ['filter' => ['auth', 'role:owner']]);
 $routes->post('members', 'Members::create', ['filter' => ['auth', 'role:owner']]);
 $routes->post('members/(:num)/remove', 'Members::remove/$1', ['filter' => ['auth', 'role:owner']]);

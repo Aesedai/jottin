@@ -2,8 +2,11 @@
 
 namespace App\Controllers;
 
+use App\Libraries\Audit\AuditLogger;
 use App\Libraries\Auth\AccountService;
 use App\Libraries\Auth\EmailTakenException;
+use App\Libraries\Transaction;
+use App\Models\UserLoginLookup;
 use App\Models\UserModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
@@ -33,10 +36,16 @@ class Members extends BaseController
         $email = (string) $this->request->getPost('email');
 
         try {
-            $password = (new AccountService(service('tenantContext')))->addMember(
-                trim((string) $this->request->getPost('name')),
-                $email
-            );
+            $password = Transaction::run(function () use ($email): string {
+                $password = (new AccountService(service('tenantContext')))->addMember(
+                    trim((string) $this->request->getPost('name')),
+                    $email
+                );
+                $id = (new UserLoginLookup())->idForEmail($email);
+                (new AuditLogger())->record('member.added', 'user', (string) $id);
+
+                return $password;
+            });
         } catch (EmailTakenException) {
             return $this->response->setStatusCode(422)->setBody(view('members/index', [
                 'members' => $users->listPublic(),
@@ -65,7 +74,10 @@ class Members extends BaseController
             return redirect()->to('/members')->with('error', 'The workspace owner cannot be removed.');
         }
 
-        $users->delete($id);
+        Transaction::run(static function () use ($users, $id): void {
+            $users->delete($id);
+            (new AuditLogger())->record('member.removed', 'user', (string) $id);
+        });
 
         return redirect()->to('/members')->with('notice', 'Member removed.');
     }
