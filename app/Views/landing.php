@@ -1,15 +1,8 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Jottin</title>
-    <style>
-        body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #12141a; color: #f2f4f8; font-family: system-ui, sans-serif; }
-        .jott { color: #9b59b6; } .in { color: #2ecc71; }
-    </style>
-</head>
-<body>
-    <h1><span class="jott">jott</span><span class="in">In</span></h1>
-</body>
-</html>
+<?php $this->setVar('title', 'Jottin'); ?>
+<?php $this->setVar('mainClass', 'landing'); ?>
+<?= $this->extend('layouts/main') ?>
+<?= $this->section('content') ?>
+<h1 class="hero-title">Jot it down. Let your tools take it from there.</h1>
+<p class="hero-copy">Write a quick note, and hashtags file it into collections. Each collection can send its jotts to your own automations.</p>
+<p><a class="button primary" href="/signup">Create a workspace</a></p>
+<?= $this->endSection() ?>

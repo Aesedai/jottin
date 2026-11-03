@@ -10,6 +10,7 @@ Requires Docker with Compose. PHP and Composer run inside the container.
 cp .env.example .env          # then set real values for both passwords
 docker compose up -d --build
 docker compose exec -u www-data app composer install
+docker compose exec -u www-data app php spark migrate --all
 ```
 
 Open http://localhost:8080. `GET /health` reports app and database status.
