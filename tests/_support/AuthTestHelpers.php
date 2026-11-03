@@ -45,6 +45,9 @@ trait AuthTestHelpers
     {
         Services::resetSingle('tenantContext');
         Services::resetSingle('currentUser');
+        Services::resetSingle('apiClient');
+        // The renderer keeps view data between renders, which a real request never sees.
+        Services::resetSingle('renderer');
         // It reads the session's token once when created, as each real request does.
         Services::resetSingle('security');
     }
