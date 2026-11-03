@@ -1,0 +1,14 @@
+# Caddy gets and renews the HTTPS certificate on its own.
+# It replaces any X-Forwarded-For a client sends, so the app can trust that header.
+jottin.app {
+	encode gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	reverse_proxy app:80
+}
+
+www.jottin.app {
+	redir https://jottin.app{uri} permanent
+}
