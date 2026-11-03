@@ -15,3 +15,7 @@ $routes->post('logout', 'Auth::logout', ['filter' => 'auth']);
 $routes->get('dashboard', 'Dashboard::index', ['filter' => 'auth']);
 $routes->get('account/password', 'Account::passwordForm', ['filter' => 'auth']);
 $routes->post('account/password', 'Account::changePassword', ['filter' => 'auth']);
+
+$routes->get('members', 'Members::index', ['filter' => ['auth', 'role:owner']]);
+$routes->post('members', 'Members::create', ['filter' => ['auth', 'role:owner']]);
+$routes->post('members/(:num)/remove', 'Members::remove/$1', ['filter' => ['auth', 'role:owner']]);

@@ -149,7 +149,7 @@ final class AuthTest extends CIUnitTestCase
 
     public function testProtectedPagesRedirectGuestsToSignIn(): void
     {
-        foreach (['dashboard', 'account/password'] as $page) {
+        foreach (['dashboard', 'account/password', 'members'] as $page) {
             $this->freshRequest();
             $this->get($page)->assertRedirectTo('/login');
         }
