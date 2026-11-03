@@ -13,7 +13,7 @@ final class TenantSchemaTest extends CIUnitTestCase
     use DatabaseTestTrait;
 
     /** Tables that are deliberately not tenant-owned. */
-    private const GLOBAL_TABLES = ['migrations', 'tenants'];
+    private const GLOBAL_TABLES = ['ci_sessions', 'migrations', 'tenants'];
 
     protected $migrate   = true;
     protected $refresh   = true;
