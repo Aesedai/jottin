@@ -142,7 +142,7 @@ final class DeliveryTest extends CIUnitTestCase
         $ada = $this->createWorkspace('ada@example.com');
         $id  = $this->collectionFor($ada);
 
-        foreach (['not a url', 'http://localhost/x', 'http://192.168.1.37/x', 'http://169.254.169.254/x'] as $url) {
+        foreach (['not a url', 'http://localhost/x', 'http://192.168.1.50/x', 'http://169.254.169.254/x'] as $url) {
             $this->configure($ada, $id, 'manual', $url)->assertStatus(422);
         }
 

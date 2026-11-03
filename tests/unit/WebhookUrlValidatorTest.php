@@ -24,7 +24,7 @@ final class WebhookUrlValidatorTest extends TestCase
             'private 10'             => ['http://10.1.2.3/hook'],
             'private 172'            => ['http://172.16.0.1/hook'],
             'private 172 upper'      => ['http://172.31.255.255/hook'],
-            'private 192'            => ['http://192.168.1.37/hook'],
+            'private 192'            => ['http://192.168.1.50/hook'],
             'cloud metadata'         => ['http://169.254.169.254/latest/meta-data/'],
             'carrier-grade NAT'      => ['http://100.64.0.1/hook'],
             'benchmark range'        => ['http://198.18.0.1/hook'],
