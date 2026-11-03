@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\ApiCredentialLookup;
 use App\Models\TenantModel;
 use App\Models\TenantScopedModel;
 use App\Models\UserLoginLookup;
@@ -19,6 +20,7 @@ final class TenancyArchitectureTest extends TestCase
     private const UNSCOPED_MODELS = [
         TenantModel::class, // The tenants table is the root of isolation.
         UserLoginLookup::class, // At sign-in the tenant isn't known yet; it comes from this lookup.
+        ApiCredentialLookup::class, // API auth derives the tenant from the key, so it can't be known first.
     ];
 
     /** Files allowed to reach the database without a model. */

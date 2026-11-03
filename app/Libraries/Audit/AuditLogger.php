@@ -17,16 +17,28 @@ class AuditLogger
     /** @param array<string, mixed> $detail */
     public function record(string $action, string $entityType, string $entityRef, array $detail = []): void
     {
-        $user = service('currentUser');
-
-        $this->log->insert([
-            'actor_type'  => $user->isSignedIn() ? 'user' : 'system',
-            'actor_id'    => $user->isSignedIn() ? $user->id() : null,
-            'actor_label' => $user->isSignedIn() ? $user->email() : 'system',
+        $this->log->insert($this->actor() + [
             'action'      => $action,
             'entity_type' => $entityType,
             'entity_ref'  => $entityRef,
             'detail'      => $detail === [] ? null : json_encode($detail, JSON_THROW_ON_ERROR),
         ]);
+    }
+
+    /** @return array{actor_type: string, actor_id: int|null, actor_label: string} */
+    private function actor(): array
+    {
+        $user   = service('currentUser');
+        $client = service('apiClient');
+
+        if ($user->isSignedIn()) {
+            return ['actor_type' => 'user', 'actor_id' => $user->id(), 'actor_label' => $user->email()];
+        }
+
+        if ($client->isAuthenticated()) {
+            return ['actor_type' => 'api', 'actor_id' => $client->id(), 'actor_label' => $client->label()];
+        }
+
+        return ['actor_type' => 'system', 'actor_id' => null, 'actor_label' => 'system'];
     }
 }
