@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use App\Libraries\Api\ApiClient;
 use App\Libraries\Auth\CurrentUser;
 use App\Libraries\Tenancy\TenantContext;
 use CodeIgniter\Config\BaseService;
@@ -21,6 +22,15 @@ use CodeIgniter\Config\BaseService;
  */
 class Services extends BaseService
 {
+    public static function apiClient(bool $getShared = true): ApiClient
+    {
+        if ($getShared) {
+            return static::getSharedInstance('apiClient');
+        }
+
+        return new ApiClient();
+    }
+
     public static function currentUser(bool $getShared = true): CurrentUser
     {
         if ($getShared) {

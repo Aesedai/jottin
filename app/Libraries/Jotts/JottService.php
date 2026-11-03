@@ -25,22 +25,29 @@ final class JottService
     }
 
     /**
+     * @param list<array<string, mixed>> $manualCollections Rows already loaded through the tenant scope.
+     *
      * @return array{jott: array<string, mixed>, tags: list<array{name: string, created: bool}>}
      */
-    public function create(string $text, string $source = 'web'): array
+    public function create(string $text, string $source = 'web', array $manualCollections = []): array
     {
         $text = $this->validated($text);
 
-        return Transaction::run(function () use ($text, $source): array {
+        return Transaction::run(function () use ($text, $source, $manualCollections): array {
             $publicId = bin2hex(random_bytes(12));
             $id       = (int) $this->jotts->insert(['public_id' => $publicId, 'text' => $text, 'source' => $source]);
 
             $tags   = $this->resolveTags($text);
             $change = $this->memberships->syncAutomatic($id, array_column($tags, 'id'));
 
+            foreach ($manualCollections as $collection) {
+                $this->memberships->addManual($id, (int) $collection['id']);
+            }
+
             $this->audit->record('jott.created', 'jott', $publicId, [
                 'source'      => $source,
                 'collections' => $change['added'],
+                'manual'      => array_column($manualCollections, 'public_id'),
             ]);
 
             return ['jott' => $this->jotts->find($id), 'tags' => $tags];

@@ -31,6 +31,12 @@ $routes->post('collections/(:alphanum)/settings', 'Collections::rename/$1', ['fi
 $routes->get('account/password', 'Account::passwordForm', ['filter' => 'auth']);
 $routes->post('account/password', 'Account::changePassword', ['filter' => 'auth']);
 
+$routes->post('v1/jotts', 'Api\Jotts::create', ['filter' => 'apiauth']);
+
+$routes->get('settings/api', 'ApiKeys::index', ['filter' => ['auth', 'role:owner']]);
+$routes->post('settings/api', 'ApiKeys::create', ['filter' => ['auth', 'role:owner']]);
+$routes->post('settings/api/(:alphanum)/revoke', 'ApiKeys::revoke/$1', ['filter' => ['auth', 'role:owner']]);
+
 $routes->get('audit', 'Audit::index', ['filter' => ['auth', 'role:owner']]);
 
 $routes->get('members', 'Members::index', ['filter' => ['auth', 'role:owner']]);

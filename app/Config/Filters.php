@@ -37,6 +37,7 @@ class Filters extends BaseFilters
         'auth'          => \App\Filters\AuthFilter::class,
         'role'          => \App\Filters\RoleFilter::class,
         'csp'           => \App\Filters\ContentSecurityPolicy::class,
+        'apiauth'       => \App\Filters\ApiAuthFilter::class,
     ];
 
     /**
@@ -76,7 +77,8 @@ class Filters extends BaseFilters
     public array $globals = [
         'before' => [
             // /health must work with no session, so it doesn't load the session-based token.
-            'csrf' => ['except' => ['health']],
+            // The API sends no cookies, so there is no ambient credential for CSRF to abuse.
+            'csrf' => ['except' => ['health', 'v1/*']],
             'invalidchars',
         ],
         'after' => [

@@ -240,3 +240,6 @@ select {
     .collections-nav a { white-space: normal; overflow-wrap: anywhere; }
     .add-collection { grid-template-columns: 1fr 1fr; }
 }
+
+.code-sample { margin: 0; padding: 12px; overflow-x: auto; font-size: .85rem; background: var(--bg); border-radius: 10px; }
+.code-sample code { padding: 0; background: none; overflow-wrap: normal; }
