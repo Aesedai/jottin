@@ -19,6 +19,7 @@ A running record of how AI was used to build Jottin, where a human changed its d
 - **Overstrict guard:** its first tenant guard refused a call the framework makes internally. The test suite caught that.
 - **Invented API:** it used a `max_byte` validation rule that doesn't exist, from memory. The tests caught it.
 - **Silently ignored argument:** it passed data to `extend()`, which takes only a layout name, so every page lost its title and the landing page its styling. All tests passed; looking at a screenshot caught it.
+- **Default collation trap, caught in design:** MySQL's default collation would have treated `#cafe` and `#café` as one tag, so `tag_key` uses a binary collation, with a test that fails without it.
 - **Overridden Apache setting:** `ServerTokens Prod` from PR 1 was overridden by Debian's own config and leaked the Apache version. Inspecting real response headers caught it.
 
 ## Why the tests are trustworthy

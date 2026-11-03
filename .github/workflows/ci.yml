@@ -65,6 +65,10 @@ jobs:
           extensions: intl, mysqli
           coverage: none
       - run: composer install --no-interaction --no-progress
+      - name: Allow the non-root user to create the audit log triggers
+        run: >-
+          docker exec "$(docker ps -q --filter ancestor=mysql:8.0)"
+          mysql -uroot -pci-only -e "SET GLOBAL log_bin_trust_function_creators = 1"
       - run: composer test
 
   image:

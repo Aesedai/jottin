@@ -32,6 +32,11 @@ final class CurrentUser
         return (string) ($this->user['name'] ?? '');
     }
 
+    public function email(): string
+    {
+        return (string) ($this->user['email'] ?? '');
+    }
+
     public function hasRole(string $role): bool
     {
         return ($this->user['role'] ?? null) === $role;

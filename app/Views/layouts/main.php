@@ -15,7 +15,7 @@
     <a class="wordmark" href="<?= $user->isSignedIn() ? '/dashboard' : '/' ?>" aria-label="Jottin home"><span class="jott">jott</span><span class="in">In</span></a>
     <nav aria-label="Main">
         <?php if ($user->isSignedIn()): ?>
-            <?php if ($user->hasRole('owner')): ?><a href="/members">Members</a><?php endif ?>
+            <?php if ($user->hasRole('owner')): ?><a href="/members">Members</a><a href="/audit">Audit log</a><?php endif ?>
             <a href="/account/password">Password</a>
             <form action="/logout" method="post" class="inline">
                 <?= csrf_field() ?>

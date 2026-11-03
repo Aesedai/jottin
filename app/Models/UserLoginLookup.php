@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Libraries\Auth\AccountService;
 use CodeIgniter\Model;
 
 /**
@@ -18,5 +19,12 @@ class UserLoginLookup extends Model
     public function findByEmail(string $normalizedEmail): ?array
     {
         return $this->select('id, tenant_id, password_hash')->where('email', $normalizedEmail)->first();
+    }
+
+    public function idForEmail(string $email): ?int
+    {
+        $row = $this->findByEmail(AccountService::normalizeEmail($email));
+
+        return $row === null ? null : (int) $row['id'];
     }
 }
