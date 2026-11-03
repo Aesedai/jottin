@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<ruleset name="Jottin">
+    <description>PSR-12 for code we own; generated framework config and templates are excluded.</description>
+    <file>app</file>
+    <file>tests</file>
+    <exclude-pattern>app/Config/*</exclude-pattern>
+    <exclude-pattern>app/Views/*</exclude-pattern>
+    <exclude-pattern>app/Common.php</exclude-pattern>
+    <exclude-pattern>app/Database/Migrations/*</exclude-pattern>
+    <exclude-pattern>*/index.html</exclude-pattern>
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+    <arg value="sp"/>
+    <rule ref="PSR12"/>
+</ruleset>
