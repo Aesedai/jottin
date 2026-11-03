@@ -1,0 +1,49 @@
+{
+    "name": "aesedai/jottin",
+    "description": "Multi-tenant note capture with hashtag collections and automation webhooks (CodeIgniter 4).",
+    "license": "proprietary",
+    "type": "project",
+    "require": {
+        "php": "^8.2",
+        "codeigniter4/framework": "^4.7"
+    },
+    "require-dev": {
+        "fakerphp/faker": "^1.9",
+        "mikey179/vfsstream": "^1.6",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^10.5.16",
+        "squizlabs/php_codesniffer": "^3.13"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Config\\": "app/Config/"
+        },
+        "exclude-from-classmap": [
+            "**/Database/Migrations/**"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Support\\": "tests/_support"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "phpcs",
+        "analyse": "phpstan analyse --memory-limit=512M",
+        "check": [
+            "@lint",
+            "@analyse",
+            "@test"
+        ]
+    }
+}
