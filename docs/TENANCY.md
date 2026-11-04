@@ -25,6 +25,7 @@ That's the common approach, and it has real holes that the tests here cover:
 | `resetQuery()` | Removes the scope | No effect, because the scope is added at compile time |
 | `updateBatch()`, `upsert()`, `truncate()` and similar | Depends on each method | Throws |
 | Setting `tenant_id` on insert or update | Can move a row between tenants | Throws; the column is set only by the scope |
+| `join()` matching on `id` alone | The scope covers only the main table, so the join can bring in another tenant's rows | Throws unless the condition matches both tables' `tenant_id` |
 
 ## Defense in depth
 
@@ -34,7 +35,7 @@ That's the common approach, and it has real holes that the tests here cover:
 
 ## Known limits
 
-- **Joined tables aren't scoped automatically.** Join on a composite foreign key, so the database guarantees both rows share a tenant.
+- **Join checks read the condition's text.** The builder requires the joined table's `tenant_id` to equal its own, and refuses `OR`, raw SQL and subqueries as tables. That catches mistakes, but it isn't a SQL parser, and a join to a table with no `tenant_id` is refused too, so it would need its own allowlisted model.
 - **Raw SQL bypasses the builder.** The architecture test catches common forms by pattern, which isn't a proof.
 - **MySQL has no row-level security.** Postgres RLS would add a database-enforced layer, but it brings its own traps, such as owner roles that bypass it.
 
