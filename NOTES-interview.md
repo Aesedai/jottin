@@ -2,6 +2,8 @@
 
 Talking points tying this build to a senior full stack role on a multi-tenant SaaS platform: multi-tenancy, RBAC, audit, security, CI/CD, CodeIgniter modernization, and AI-assisted development with human oversight.
 
+**Live at https://jottin.app.** See `docs/DEPLOY-AWS.md` for how it's deployed and where this setup would need to grow.
+
 ## 1. Multi-tenancy
 
 Isolation should be structurally hard to get wrong, not something each feature remembers. Tenant scope is added when SQL is compiled, because a base-model `where()` leaks through `orWhere()` and `countAll()`, and `resetQuery()` removes it. Composite foreign keys add a second layer, and CI fails on unscoped models or tables.

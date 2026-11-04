@@ -25,7 +25,12 @@ A running record of how AI was used to build Jottin, where a human changed its d
 - **Hidden labels widened the page:** screen-reader text escaped the scrolling collection list and made the feed 720px wide on a 320px screen. All tests passed; measuring the rendered page caught it.
 - **Demo flag too permissive:** a switch for the local receiver was only excluded from production, so it also disabled SSRF protection during local test runs. CI didn't set the variable and wouldn't have caught it. It now applies only in development, and a test run with the flag set fails if that regresses.
 - **Slow test suite:** rebuilding the schema for every test passed Composer's 5-minute limit, which would have broken CI. The schema now builds once per run.
+- **Deploy check that couldn't fail:** the first `deploy.sh` reported success on an HTTPS redirect, because `curl -f` accepts a 3xx. Reading the actual response caught it, and the script now needs a real `ok`.
 - **Overridden Apache setting:** `ServerTokens Prod` from PR 1 was overridden by Debian's own config and leaked the Apache version. Inspecting real response headers caught it.
+
+## Checked against production
+
+After deploying, the checks were repeated against the live site, because some risks only exist there. SSRF attempts against AWS instance metadata and internal containers were refused. A spoofed `X-Forwarded-For` didn't bypass the sign-in rate limit, while a second real client kept its own limit. A real webhook was delivered by the worker, and MySQL refused an audit edit. The test accounts were then removed.
 
 ## Why the tests are trustworthy
 Tests written alongside the code can pass without proving much. So the isolation and access protections were deliberately broken one at a time, confirming the suite fails each time. Behavior the test environment can't exercise, such as real sign-out and session storage, was checked over HTTP against the running app.

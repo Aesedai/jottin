@@ -2,7 +2,7 @@
 
 Multi-tenant note capture for people who automate. Write a short note (a "jott"), and hashtags file it into collections. Other tools can push jotts in through an API, and each collection can send its jotts out to a webhook.
 
-Built with PHP 8.3, CodeIgniter 4.7 and MySQL 8, and run with Docker Compose.
+**Live at https://jottin.app.** Built with PHP 8.3, CodeIgniter 4.7 and MySQL 8, running on AWS Lightsail with Docker Compose and Caddy.
 
 ## Run it locally
 
@@ -25,7 +25,7 @@ docker compose exec -u www-data app composer check
 
 ## Demo in five minutes
 
-The Compose stack includes a controllable test receiver (see [`docs/WEBHOOKS.md`](docs/WEBHOOKS.md)).
+This uses the local stack, which includes a controllable test receiver (see [`docs/WEBHOOKS.md`](docs/WEBHOOKS.md)). The live site has no test receiver, and it refuses private addresses, so a demo there needs a public webhook URL.
 
 1. **Capture:** create a workspace and save `Prepare examples for #Interview and #SaaS`. Both collections appear on their own.
 2. **Isolation:** create a second workspace in a private window, then paste the first workspace's jott URL. It returns 404.
@@ -97,7 +97,7 @@ The spec's acceptance tests are covered by automated tests, except that the 320p
 | **API** | Rotating keys (revoke and create instead), key scopes and expiry |
 | **Collections** | Deleting collections, live tag preview while typing |
 | **Feed** | Pagination (the newest 100 are shown) |
-| **Deployment** | No live deployment. See [`docs/DEPLOY-GCP.md`](docs/DEPLOY-GCP.md) for how it would run on Google Cloud |
+| **Operations** | Monitoring and alerts, automated deploys, a managed database. See [`docs/DEPLOY-AWS.md`](docs/DEPLOY-AWS.md) for the current setup and its limits |
 
 **Decided against for now:** per-tenant subdomains (see [`docs/TENANCY.md`](docs/TENANCY.md)).
 
@@ -114,5 +114,6 @@ The spec excludes multi-user accounts, but this build adds owner and member role
 | [`docs/API.md`](docs/API.md) | The inbound API, including Webhooker setup |
 | [`docs/WEBHOOKS.md`](docs/WEBHOOKS.md) | Outbound delivery, signatures and SSRF protection |
 | [`docs/CI3-TO-CI4.md`](docs/CI3-TO-CI4.md) | CodeIgniter 3 vs 4, and migrating incrementally |
-| [`docs/DEPLOY-GCP.md`](docs/DEPLOY-GCP.md) | A Cloud Run and Cloud SQL design (not deployed) |
+| [`docs/DEPLOY-AWS.md`](docs/DEPLOY-AWS.md) | How the live site is deployed, what it costs, and its limits |
+| [`docs/DEPLOY-GCP.md`](docs/DEPLOY-GCP.md) | How this would map to Cloud Run and Cloud SQL (not deployed) |
 | [`docs/AI-ASSIST-NOTES.md`](docs/AI-ASSIST-NOTES.md) | How AI was used, what it got wrong, and governance |
