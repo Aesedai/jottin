@@ -1,6 +1,6 @@
 # Deploying to Google Cloud
 
-**This design hasn't been deployed or tested on Google Cloud.** The app runs locally in Docker, and the production image was checked locally: it starts, passes `/health`, sets secure cookies and the content security policy, and shows no debug toolbar.
+**This design hasn't been deployed or tested on Google Cloud.** The live site runs on AWS Lightsail (see `docs/DEPLOY-AWS.md`), and this describes how the same production image would map to Google Cloud.
 
 ## Design
 
@@ -30,7 +30,7 @@ Never set `JOTTIN_ALLOW_PRIVATE_WEBHOOKS`. It's ignored outside development anyw
 ## What would change for real production
 
 - **Rate limits:** the throttler uses the local file cache, so each instance counts separately. A shared cache such as Memorystore would be needed.
-- **Client IPs:** behind Google's load balancer, `Config\App::$proxyIPs` must be set, or every client looks like one address and rate limits misfire.
+- **Client IPs:** behind Google's load balancer, `JOTTIN_TRUSTED_PROXY` must name its address range, or every client looks like one address and rate limits misfire.
 - **Logs:** CodeIgniter logs to `writable/logs`, which disappears with the container, so they should go to stdout for Cloud Logging.
 - **Scheduling:** Cloud Scheduler's one-minute minimum makes automatic delivery slower than the local 2-second loop.
 - **Webhook egress:** requests should leave through a restricted network path, as a second layer behind the SSRF checks.

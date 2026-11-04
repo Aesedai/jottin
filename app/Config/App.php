@@ -199,4 +199,17 @@ class App extends BaseConfig
      * @see http://www.w3.org/TR/CSP/
      */
     public bool $CSPEnabled = false;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        // Behind a reverse proxy every request appears to come from the proxy, so a
+        // per-IP rate limit would treat all visitors as one. Trust only the given range.
+        $trustedProxy = env('JOTTIN_TRUSTED_PROXY');
+
+        if (is_string($trustedProxy) && $trustedProxy !== '') {
+            $this->proxyIPs = [$trustedProxy => 'X-Forwarded-For'];
+        }
+    }
 }

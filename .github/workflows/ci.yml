@@ -77,3 +77,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build --target prod -t jottin:ci .
+      - name: Check the production Compose file
+        run: docker compose -f docker-compose.prod.yml config --quiet
+        env:
+          DB_PASSWORD: ci-only
+          DB_ROOT_PASSWORD: ci-only
+          ENCRYPTION_KEY: ci-only

@@ -11,3 +11,4 @@ writable/logs/*
 writable/session/*
 writable/debugbar/*
 docker-compose.override.yml
+docker-compose.prod.yml
