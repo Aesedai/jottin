@@ -7,6 +7,7 @@ use App\Libraries\Tenancy\TenantScopedBuilder;
 use App\Libraries\Tenancy\TenantScopeException;
 use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\Database\Exceptions\DatabaseException;
+use CodeIgniter\Database\RawSql;
 use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\DatabaseTestTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -50,6 +51,19 @@ final class TenantIsolationTest extends CIUnitTestCase
         $this->db->query("INSERT INTO scoped_notes (tenant_id, body) VALUES (?, 'theirs')", [self::THEIRS]);
         $this->theirNote = $this->db->insertID();
 
+        $this->db->query('CREATE TABLE scoped_note_tags (
+            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            tenant_id BIGINT UNSIGNED NOT NULL,
+            note_id BIGINT UNSIGNED NOT NULL,
+            label VARCHAR(100) NOT NULL
+        ) ENGINE=InnoDB');
+
+        // The second row is a stray link: another tenant's tag that points at our note.
+        $this->db->query(
+            "INSERT INTO scoped_note_tags (tenant_id, note_id, label) VALUES (?, ?, 'our tag'), (?, ?, 'their tag')",
+            [self::OURS, $this->ourNote, self::THEIRS, $this->ourNote]
+        );
+
         $this->context = service('tenantContext');
         $this->context->set(self::OURS);
         $this->notes = new ScopedNoteModel();
@@ -64,6 +78,7 @@ final class TenantIsolationTest extends CIUnitTestCase
 
     private function dropFixtures(): void
     {
+        $this->db->query('DROP TABLE IF EXISTS scoped_note_tags');
         $this->db->query('DROP TABLE IF EXISTS scoped_note_links');
         $this->db->query('DROP TABLE IF EXISTS scoped_notes');
     }
@@ -247,6 +262,91 @@ final class TenantIsolationTest extends CIUnitTestCase
         $this->expectException(TenantScopeException::class);
 
         $operation($this->notes->builder());
+    }
+
+    /** @return array<string, array{string, string}> */
+    public static function safeJoins(): array
+    {
+        return [
+            'joined table first' => [
+                'scoped_note_tags',
+                'scoped_note_tags.tenant_id = scoped_notes.tenant_id AND scoped_note_tags.note_id = scoped_notes.id',
+            ],
+            'own table first' => [
+                'scoped_note_tags',
+                'scoped_notes.tenant_id = scoped_note_tags.tenant_id AND scoped_notes.id = scoped_note_tags.note_id',
+            ],
+            'alias' => [
+                'scoped_note_tags t',
+                't.tenant_id = scoped_notes.tenant_id AND t.note_id = scoped_notes.id',
+            ],
+            'alias with AS' => [
+                'scoped_note_tags AS t',
+                't.tenant_id=scoped_notes.tenant_id AND t.note_id=scoped_notes.id',
+            ],
+        ];
+    }
+
+    #[DataProvider('safeJoins')]
+    public function testJoinOnTheTenantReturnsOnlyOurRows(string $table, string $condition): void
+    {
+        $rows = $this->notes->builder()->select('label')->join($table, $condition)->get()->getResultArray();
+
+        $this->assertSame(['our tag'], array_column($rows, 'label'));
+    }
+
+    /** @return array<string, array{string, mixed}> */
+    public static function unsafeJoins(): array
+    {
+        return [
+            'ID only' => ['scoped_note_tags', 'scoped_note_tags.note_id = scoped_notes.id'],
+            'OR around the tenant' => [
+                'scoped_note_tags',
+                'scoped_note_tags.tenant_id = scoped_notes.tenant_id OR scoped_note_tags.note_id = scoped_notes.id',
+            ],
+            'lowercase or' => [
+                'scoped_note_tags',
+                'scoped_note_tags.tenant_id = scoped_notes.tenant_id or scoped_note_tags.note_id = scoped_notes.id',
+            ],
+            'pipes as OR' => [
+                'scoped_note_tags',
+                'scoped_note_tags.tenant_id = scoped_notes.tenant_id || scoped_note_tags.note_id = scoped_notes.id',
+            ],
+            'tenant compared to itself' => [
+                'scoped_note_tags',
+                'scoped_note_tags.tenant_id = scoped_note_tags.tenant_id',
+            ],
+            'fixed tenant value' => ['scoped_note_tags', 'scoped_note_tags.tenant_id = 2'],
+            'a different table' => [
+                'scoped_note_tags',
+                'other.scoped_note_tags.tenant_id = scoped_notes.tenant_id',
+            ],
+            'similar column name' => [
+                'scoped_note_tags',
+                'scoped_note_tags.tenant_id = scoped_notes.tenant_id_old',
+            ],
+            'USING' => ['scoped_note_tags', 'tenant_id'],
+            'raw SQL' => ['scoped_note_tags', new RawSql('scoped_note_tags.tenant_id = scoped_notes.tenant_id')],
+            'subquery as table' => [
+                '(SELECT * FROM scoped_note_tags) t',
+                't.tenant_id = scoped_notes.tenant_id',
+            ],
+        ];
+    }
+
+    #[DataProvider('unsafeJoins')]
+    public function testJoinThatCouldLeaveTheTenantIsRefused(string $table, mixed $condition): void
+    {
+        $this->expectException(TenantScopeException::class);
+
+        $this->notes->builder()->join($table, $condition);
+    }
+
+    public function testJoinThroughAModelIsAlsoRefused(): void
+    {
+        $this->expectException(TenantScopeException::class);
+
+        $this->notes->join('scoped_note_tags', 'scoped_note_tags.note_id = scoped_notes.id');
     }
 
     public function testQueriesFailClosedWithoutATenant(): void
