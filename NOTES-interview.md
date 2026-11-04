@@ -6,7 +6,7 @@ Talking points tying this build to a senior full stack role on a multi-tenant Sa
 
 ## 1. Multi-tenancy
 
-Isolation should be structurally hard to get wrong, not something each feature remembers. Tenant scope is added when SQL is compiled, because a base-model `where()` leaks through `orWhere()` and `countAll()`, and `resetQuery()` removes it. Composite foreign keys add a second layer, and CI fails on unscoped models or tables.
+Isolation should be structurally hard to get wrong, not something each feature remembers. Tenant scope is added when SQL is compiled, because a base-model `where()` leaks through `orWhere()` and `countAll()`, and `resetQuery()` removes it. A join must match on `tenant_id` too, or the builder refuses it. Composite foreign keys add a second layer, and CI fails on unscoped models or tables.
 
 **See:** `compileWhereHaving` in `app/Libraries/Tenancy/TenantScopedBuilder.php` and `docs/TENANCY.md`.
 

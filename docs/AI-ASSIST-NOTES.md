@@ -13,6 +13,7 @@ A running record of how AI was used to build Jottin, where a human changed its d
 - **Tenancy:** the AI recommended keeping per-tenant subdomains. Jordan checked them against the product spec, found they weren't a requirement, and dropped them. Tenants now resolve from the session or API credential.
 - **Inbound API:** Jordan questioned whether the API was more complex than a webhook needed, and pointed to the Webhooker tool. Reading its source showed the endpoint already fit, and led to adding the `message` reply field.
 - **Git target:** Jordan confirmed the work goes to GitHub, not the local server.
+- **Joins:** while reading the tenant builder, Jordan asked what happens with joins. The answer exposed a gap the AI had only documented as a known limit: nothing enforced the tenant on a joined table. The builder now refuses a join that doesn't match on `tenant_id`.
 
 ## Mistakes the AI made, and what caught them
 - **Passing check that never ran:** a pipeline hid a crashed `composer check`. It now checks real exit codes.

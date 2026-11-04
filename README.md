@@ -62,7 +62,7 @@ flowchart LR
 
 ## Tenancy
 
-One shared database, with `tenant_id` on every tenant-owned row, enforced when SQL is compiled so a feature can't forget it. CI fails on an unscoped model, direct database access, a table without `tenant_id`, or a foreign key between tenant tables that omits it.
+One shared database, with `tenant_id` on every tenant-owned row, enforced when SQL is compiled so a feature can't forget it. A join that doesn't match on `tenant_id` is refused. CI fails on an unscoped model, direct database access, a table without `tenant_id`, or a foreign key between tenant tables that omits it.
 
 [`docs/TENANCY.md`](docs/TENANCY.md) covers the design, its limits, and shared schema vs schema per tenant vs database per tenant.
 

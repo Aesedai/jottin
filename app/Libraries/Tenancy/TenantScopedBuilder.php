@@ -88,6 +88,22 @@ final class TenantScopedBuilder extends Builder
         return $this;
     }
 
+    /**
+     * The scope only covers this builder's own table, so a joined table has to be held
+     * to the same tenant in the join itself. This catches mistakes in application code.
+     * It reads the condition's text, so it is not a SQL parser.
+     *
+     * @param mixed $cond
+     *
+     * @return $this
+     */
+    public function join(string $table, $cond, string $type = '', ?bool $escape = null)
+    {
+        $this->assertJoinKeepsTenant($table, $cond);
+
+        return parent::join($table, $cond, $type, $escape);
+    }
+
     public function fromSubquery(BaseBuilder $from, string $alias): never
     {
         $this->refuse('fromSubquery');
@@ -154,6 +170,32 @@ final class TenantScopedBuilder extends Builder
             if (trim((string) $column, $this->db->escapeChar) === self::COLUMN) {
                 throw new TenantScopeException('tenant_id is assigned by the tenant scope and cannot be set.');
             }
+        }
+    }
+
+    private function assertJoinKeepsTenant(string $table, mixed $cond): void
+    {
+        $matched = preg_match('/^(\w+)(?:\s+(?:AS\s+)?(\w+))?$/i', trim($table), $parts);
+
+        if ($matched !== 1 || ! is_string($cond)) {
+            throw new TenantScopeException('A join must name a table and use a plain text condition.');
+        }
+
+        // An OR could match rows on its other side, whatever the tenant condition says.
+        if (preg_match('/\b(?:X?OR)\b|\|\|/i', $cond) === 1) {
+            throw new TenantScopeException('A join condition cannot use OR.');
+        }
+
+        $joined = preg_quote($parts[2] ?? $parts[1], '/');
+        $own    = preg_quote($this->scopedTable, '/');
+
+        $sameTenant = "/(?<![\\w.`])(?:{$joined}\\.tenant_id\\s*=\\s*{$own}\\.tenant_id"
+            . "|{$own}\\.tenant_id\\s*=\\s*{$joined}\\.tenant_id)(?![\\w.])/i";
+
+        if (preg_match($sameTenant, $cond) !== 1) {
+            throw new TenantScopeException(
+                "A join must match {$parts[1]}.tenant_id to {$this->scopedTable}.tenant_id."
+            );
         }
     }
 
