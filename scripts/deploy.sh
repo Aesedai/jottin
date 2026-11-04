@@ -14,7 +14,10 @@ git pull --quiet --ff-only origin "$ref"
 "${compose[@]}" exec -T -u www-data app php spark migrate --all
 
 for _ in {1..30}; do
-    if "${compose[@]}" exec -T app curl -fsS -o /dev/null -H 'X-Forwarded-Proto: https' http://localhost/health; then
+    # Through Caddy's address, which the app trusts. Only a real answer counts: an HTTPS
+    # redirect would look like success to a plain status check.
+    if "${compose[@]}" exec -T caddy wget -qO- --header 'X-Forwarded-Proto: https' http://app/health 2>/dev/null \
+        | grep -q '"status": *"ok"'; then
         echo "Deployed $(git rev-parse --short HEAD)"
         exit 0
     fi
